@@ -17,3 +17,11 @@ locust_*.csv
 
 # NOTE: hardware.json AND benchmarks/*.md / *.json files are TRACKED on purpose.
 # They are the evidence the rubric grades against. See rubric.md.
+
+# My python environment
+.venv312/
+.venv_windows/
+python312/
+python312.zip
+prometheus-2.53.0.windows-amd64/
+prometheus-2.53.0.windows-amd64.tar.gz

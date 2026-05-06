@@ -76,7 +76,7 @@ build-llama: ## Bonus — clone + build llama.cpp from source for your hardware
 	  if [ ! -d llama.cpp ]; then git clone --depth 1 https://github.com/ggml-org/llama.cpp; fi; \
 	  cd llama.cpp && \
 	  cmake -B build $(LLAMA_CMAKE_FLAGS) -DGGML_NATIVE=ON && \
-	  cmake --build build -j --config Release'
+	  cmake --build build -j 2 --config Release'
 
 sweep-thread: ## Bonus — sweep -t (thread count)
 	@$(PY) BONUS-llama-cpp-optimization/benchmarks/thread-sweep.py

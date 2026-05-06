@@ -4,9 +4,9 @@
 
 ---
 
-**Họ Tên:** _<Họ Tên>_
-**Cohort:** _<A20-K1 / A20-K2 / ...>_
-**Ngày submit:** _<YYYY-MM-DD>_
+**Họ Tên:** Nguyễn Anh Đức
+**Cohort:** _A20-K1_
+**Ngày submit:** 06/05/2026
 
 ---
 
@@ -14,18 +14,18 @@
 
 > Paste output của `python 00-setup/detect-hardware.py` vào đây, hoặc điền thủ công:
 
-- **OS:** _<macOS 14 / Windows 11 / Ubuntu 24.04 / ...>_
-- **CPU:** _<Apple M2 / Intel i7-12700H / AMD Ryzen 7 5800H / ...>_
-- **Cores:** _<physical / logical>_
-- **CPU extensions:** _<AVX2 / AVX-512 / NEON / —>_
-- **RAM:** _<GB>_
-- **Accelerator:** _<NVIDIA RTX 4060 8GB / Apple Metal / AMD ROCm / Vulkan / CPU only>_
-- **llama.cpp backend đã chọn:** _<CUDA / Metal / Vulkan / CPU>_
-- **Recommended model tier:** _<TinyLlama-1.1B / Qwen2.5-1.5B / Llama-3.2-3B / Qwen2.5-7B>_
+- **OS:** _Ubuntu 24.04 (WSL2 trên Windows 11)_
+- **CPU:** _Intel(R) Core(TM) i5-10300H CPU @ 2.50GHz_
+- **Cores:** _8 physical / 8 logical_
+- **CPU extensions:** _AVX2_
+- **RAM:** _7.7 GB_
+- **Accelerator:** _NVIDIA GeForce GTX 1650, 4GB VRAM_
+- **llama.cpp backend đã chọn:** _CUDA_
+- **Recommended model tier:** _TinyLlama-1.1B_
 
-**Setup story** (≤ 80 chữ): những gì cần thay đổi để lab chạy được trên máy bạn (vd: dùng WSL2, install CUDA Toolkit, fall back sang Vulkan vì ROCm phiên bản kén, tắt antivirus để pip install nhanh hơn, v.v.):
+**Setup story** (≤ 80 chữ): những gì cần thay đổi để lab chạy được trên máy bạn:
 
-_Answer here._
+_Sử dụng WSL2 trên Windows. Cần cài đặt thêm `build-essential` và `python3-venv` để biên dịch thành công `llama-cpp-python` từ mã nguồn. Script setup ban đầu thiếu package `uvicorn` và `fastapi` cho server nên đã phải cài đặt thủ công bổ sung gói `[server]`._
 
 ---
 
@@ -35,12 +35,12 @@ _Answer here._
 
 | Model | Load (ms) | TTFT P50/P95 (ms) | TPOT P50/P95 (ms) | E2E P50/P95/P99 (ms) | Decode rate (tok/s) |
 |---|--:|--:|--:|--:|--:|
-| (Q4_K_M) | | | | | |
-| (Q2_K)   | | | | | |
+| (Q4_K_M) | 4344 | 171 / 412 | 63.1 / 100.6 | 3830 / 6481 / 6778 | 15.9 |
+| (Q2_K)   | 3070 | 318 / 1219 | 48.4 / 124.8 | 3053 / 9080 / 10590 | 20.7 |
 
 **Một quan sát** (≤ 50 chữ): Q4_K_M vs Q2_K trên máy bạn — số liệu nói gì? Quality đáng đánh đổi không?
 
-_Answer here._
+_Q2_K load và decode nhanh hơn (20.7 vs 15.9 tok/s), nhưng độ trễ TTFT và P99 cao, không ổn định. RAM 7.7GB hoàn toàn đủ chứa Q4_K_M, do đó chất lượng của Q4_K_M hoàn toàn xứng đáng đánh đổi một chút tốc độ decode._
 
 ---
 
@@ -50,31 +50,31 @@ _Answer here._
 
 | Concurrency | Total RPS | TTFB P50 (ms) | E2E P95 (ms) | E2E P99 (ms) | Failures |
 |--:|--:|--:|--:|--:|--:|
-| 10 | | | | | |
-| 50 | | | | | |
+| 10 | 0.12 | 24000 | 46000 | 46000 | 0 |
+| 50 | 0.10 | 24000 | 51000 | 51000 | 0 |
 
-**KV-cache observation** (từ `record-metrics.py`): peak `llamacpp:kv_cache_usage_ratio` ở concurrency 50 = _<0.XX>_, nghĩa là …
+**KV-cache observation** (từ `record-metrics.py`): peak `llamacpp:kv_cache_usage_ratio` ở concurrency 50 = _[Bỏ qua bước này do dùng Python server]_, nghĩa là …
 
-_Answer here._
+_Bỏ qua do bản llama-cpp-python không hỗ trợ endpoint /metrics của bản gốc C++._
 
 ---
 
 ## 4. Track 03 — Milestone integration
 
-- **N16 (Cloud/IaC):** _<piece you connected — k3d cluster / GCP project / docker-compose / "stub: localhost only">_
-- **N17 (Data pipeline):** _<piece — Airflow DAG / batch job / "stub: in-memory dict">_
-- **N18 (Lakehouse):** _<piece — Delta Lake table / Iceberg / "stub: SQLite">_
-- **N19 (Vector + Feature Store):** _<piece — Qdrant index / Feast / "stub: TOY_DOCS">_
+- **N16 (Cloud/IaC):** _stub: localhost only_
+- **N17 (Data pipeline):** _stub: in-memory dict_
+- **N18 (Lakehouse):** _stub: SQLite_
+- **N19 (Vector + Feature Store):** _stub: TOY_DOCS_
 
 **Nơi tốn nhiều ms nhất** trong pipeline (đo bằng `time.perf_counter` trong `pipeline.py`):
 
-- embed: _<ms>_
-- retrieve: _<ms>_
-- llama-server: _<ms>_
+- embed: _0 ms_
+- retrieve: _0.0 ms_
+- llama-server: _27388.6 ms_
 
 **Reflection** (≤ 60 chữ): bottleneck nằm ở đâu? Có khớp với kỳ vọng không?
 
-_Answer here._
+_Bottleneck chính nằm ở phần llama-server sinh chữ (LLM latency) do pipeline RAG giả lập retrieval quá nhanh (trong bộ nhớ). Điều này hoàn toàn khớp với kỳ vọng vì inference luôn tốn nhiều tính toán nhất._
 
 ---
 
